@@ -7,3 +7,5 @@ python-dotenv
 python-jose
 pytest-cov
 httpx
+beautifulsoup4
+lxml
