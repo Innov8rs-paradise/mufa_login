@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, Depends
+from fastapi import FastAPI, HTTPException, Request, Depends
 from fastapi.responses import RedirectResponse, HTMLResponse
 import requests, os
 from urllib.parse import urlencode
@@ -80,14 +80,19 @@ def auth_callback(code: str):
                 </html>
             """)
         db_res = requests.post(f"{USER_DB_SERVICE_URL}/users/", json=user_payload)
+        welcome_message = ''
         if db_res.status_code == 400:
             print(f"[INFO] User already exists in DB.")
+            welcome_message = f"Welcome back, {user_data['name']}!"
         elif db_res.status_code == 200:
             print(f"[INFO] New user created.")
+            welcome_message = f"Welcome, {user_data['name']}!"
         else:
             print(f"[WARN] Unexpected DB response: {db_res.status_code}")
+            welcome_message = "Unknown error. Error code: " + str(db_res.status_code)
     except Exception as e:
         print(f"[ERROR] Failed to register user in DB: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
     # ✅ Create JWT token
     token_data = {
@@ -104,7 +109,7 @@ def auth_callback(code: str):
             <head><title>Login Success</title></head>
             <body>
                 <h2>Login Successful</h2>
-                <p>Welcome, {user_data['name']}!</p>
+                <p>{welcome_message}</p>
                 <p>Email: {user_data['email']}</p>
                 <p>You may now close this tab.</p>
             </body>
