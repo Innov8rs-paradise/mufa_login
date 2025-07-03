@@ -3,7 +3,6 @@ import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import Mock, patch
 from main import app
-from conftest import MockResponse
 from bs4 import BeautifulSoup
 
 client = TestClient(app)
@@ -31,6 +30,41 @@ def test_auth_callback(mock_get, mock_post):
 
     response = client.get("/auth/callback?code=mock_code")
     assert response.status_code in (200, 307)
+
+
+# @patch("main.requests.post")
+# @patch("main.requests.get")
+# @patch("main.create_access_token")
+# def test_auth_callback_success(mock_create_token, mock_get, mock_post):
+#     # Mock Google's token exchange response
+#     mock_post.side_effect = [
+#         # 1st post: token endpoint
+#         MockResponse({"access_token": "fake_access"}, 200),
+#         # 2nd post: user DB service
+#         MockResponse({}, 200)
+#     ]
+
+#     # Mock user info response
+#     mock_get.return_value = MockResponse({
+#         "id": "test_user_id",
+#         "email": "test@example.com",
+#         "name": "Test User"
+#     }, 200)
+
+#     # Mock JWT token generation
+#     mock_create_token.return_value = "mocked.jwt.token"
+#     mock_post.return_value.status_code = 200
+#     response = client.get("/auth/callback?code=fake_code")
+
+#     assert response.status_code == 200
+#     assert "Login Successful" in response.text
+#     soup = BeautifulSoup(response.text, "html.parser")
+#     print("Response text:", soup.prettify())
+#     assert soup.find("p", text="Welcome, Test User!")
+    
+#     # assert "Welcome, Test User" in response.text
+#     assert "test@example.com" in response.text
+#     assert mock_create_token.called
 
 @patch("main.create_access_token")
 @patch("main.requests.get")
