@@ -3,7 +3,7 @@ from fastapi.responses import RedirectResponse, HTMLResponse
 import requests, os
 from urllib.parse import urlencode
 from dotenv import load_dotenv
-from jwt_utils import create_access_token
+from src.jwt_utils import create_access_token
 load_dotenv()
 app = FastAPI()
 
